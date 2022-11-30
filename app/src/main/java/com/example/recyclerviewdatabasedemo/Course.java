@@ -1,6 +1,22 @@
 package com.example.recyclerviewdatabasedemo;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import org.jetbrains.annotations.NonNls;
+
+// (DB1) first add room database implementation into gradle file
+// (DB2) if have existing java class, turn it into an entity --> @Entity:
+@Entity
+
+// (DB3) create interface (CourseDao) for DAO (to lists all methods for using database)
+
 public class Course {
+    // (DB17) add primary key (@PrimaryKey) and makes sure it is not null (@NonNull):
+    @PrimaryKey
+    @NonNull
+
     // 7. define the 2 attribute objects of course dataset (course code, and course name)
     private String code;
     private String name;
@@ -11,6 +27,12 @@ public class Course {
         //10. then inside constructor method -->
         this.code = courseCode;
         this.name = courseName;
+    }
+
+    // (DB18) add empty constructor (because creating random course data. if was using API,
+    // would not need this):
+    public Course() {
+
     }
 
 

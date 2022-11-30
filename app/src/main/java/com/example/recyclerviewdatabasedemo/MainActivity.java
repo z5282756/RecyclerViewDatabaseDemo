@@ -3,6 +3,7 @@ package com.example.recyclerviewdatabasedemo;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executors;
 
 // 42. after AppCompatActivity --> add "implements CourseRecyclerviewInterface"
 // + implement its methods
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity implements CourseRecyclervie
 
     // 26. need to create instance of adapter class and connect the adapter to the recyclerview:
     private CourseAdapter adapter;
+
+    // (DB13) declare the object
+    private CourseDatabase mDb;
 
 
     @Override
@@ -53,6 +58,14 @@ public class MainActivity extends AppCompatActivity implements CourseRecyclervie
         // 6. create new Java class for hardcoded dataset and name the class 'Course' (ALWAYS first
         // letter capital for java classes)
 
+        // DB20: move adapter = new... above mDb = Room... + change wording:
+        adapter = new CourseAdapter(new ArrayList<Course>(), this);
+
+
+        //(DB14) initialize the object:
+        mDb = Room.databaseBuilder(getApplicationContext(), CourseDatabase.class, "courses").build();
+
+        Log.d("MainActivity", "Line 68");
 
         //16. must getData() to populate the test data list:
         getData();
@@ -65,10 +78,12 @@ public class MainActivity extends AppCompatActivity implements CourseRecyclervie
         // 'this' = means the instance from the interface (since we already implemented the
         // interface in this class)
 
+        Log.d("MainActivity", "Line 81");
+
         //49. need to pass on this instance to MyViewHolder in CourseAdapter also.
 
         //27. put in adapter = new CourseAdapter(); :
-        adapter = new CourseAdapter(courseList, this);
+        // adapter = new CourseAdapter(courseList, this);
         //32. (ABOVE line) pass the courseList
 
         //28. set Adapter for recyclerView and pass on the adapter object in 27. :
@@ -83,23 +98,56 @@ public class MainActivity extends AppCompatActivity implements CourseRecyclervie
 
     // 11(cont.). create new private method to getData():
     private void getData() {
+        // DB19:
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                //DB22: before adding anything, we delete all:
+                mDb.courseDao().deleteAll();
+
+                for (int i = 0; i < 30; i++) {
+
+                    // 14. need to create an id code and name; need to have an instance from the Course
+                    // class and add a code and a name and and them to the arrayList
+                    // 14(cont.) instatiate an object from the Course class:
+                    Course course = new Course(String.valueOf(i), "Course " + String.valueOf(i));
+                    // in above line --> we are calling constructor method for the Course class and because
+                    // constructor method has 2 parameters (course code, course name)
+                    // must pass 2 parameters for course code and course name
+
+                    // (DB15) add the data to the database:
+                    mDb.courseDao().insertCourses(course); //courseList.add(course);
+
+
+                    // 15. everytime we create a new course object, must add it to the list
+                    // (call the object):
+                    // courseList.add(course);
+
+                }
+                //(DB16) once we put data in db, we put it in courseList
+                courseList = mDb.courseDao().getCourses();
+
+                // DB23:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // DB24:
+                        adapter.setData((ArrayList<Course>) courseList);
+
+                    }
+                });
+                Log.d("MainActivity", "Line 139");
+
+                // DB20: --> add method to adapter class
+                // DB21:
+                // adapter.setData((ArrayList<Course>) courseList);
+
+            }
+        });
 
         // 13. decide to do 30 random courses (loop through 20 times):
-        for (int i = 0; i < 30; i++) {
 
-            // 14. need to create an id code and name; need to have an instance from the Course
-            // class and add a code and a name and and them to the arrayList
-            // 14(cont.) instatiate an object from the Course class:
-            Course course = new Course(String.valueOf(i), "Course " + String.valueOf(i));
-            // in above line --> we are calling constructor method for the Course class and because
-            // consturctor method has 2 parameters (course code, course name)
-            // must pass 2 parameters for course code and course name
 
-            // 15. everytime we create a new course object, must add it to the list
-            // (call the object):
-            courseList.add(course);
-
-        }
 
     }
 
