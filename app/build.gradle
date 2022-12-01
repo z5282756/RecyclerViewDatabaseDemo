@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -36,7 +37,14 @@ dependencies {
 
     // (DB1) first add room database implementation into gradle file + sync:
     implementation "androidx.room:room-runtime:2.4.3"
+    implementation 'com.google.firebase:firebase-auth:21.1.0'
     annotationProcessor "androidx.room:room-compiler:2.4.3"
+
+    // FB1 open tools, firebase, authentication --> follow first 2 steps then go to step 4.
+    // FB2 add most recent dependency for firebase + sync:
+    implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
+    // FB3 add new empty activity --> LoginActivity
+
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
