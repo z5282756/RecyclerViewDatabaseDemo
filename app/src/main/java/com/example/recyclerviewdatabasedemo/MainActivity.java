@@ -1,5 +1,6 @@
 package com.example.recyclerviewdatabasedemo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +12,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.SearchView;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +44,9 @@ public class MainActivity extends AppCompatActivity implements CourseRecyclervie
 
     // (DB13) declare the object
     private CourseDatabase mDb;
+
+    // FD2.1:
+    private FirebaseDatabase firebaseDatabase;
 
 
     @Override
@@ -133,6 +144,24 @@ public class MainActivity extends AppCompatActivity implements CourseRecyclervie
                     public void run() {
                         // DB24:
                         adapter.setData((ArrayList<Course>) courseList);
+                        // FD3
+                        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                        DatabaseReference reference = firebaseDatabase.getReference(FirebaseAuth.getInstance().getUid());
+                        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                String result = (String) snapshot.getValue();
+                                if (result != null) {
+                                    Toast.makeText(MainActivity.this, "Your saved course is: " + courseList.get(Integer.valueOf(result)).getName(),Toast.LENGTH_LONG).show();
+
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
 
                     }
                 });
@@ -164,6 +193,13 @@ public class MainActivity extends AppCompatActivity implements CourseRecyclervie
         // in a small pop-up:
         // --> Toast.makeText(this, course.getName(), Toast.LENGTH_SHORT).show();
         Toast.makeText(this, course.getName(), Toast.LENGTH_SHORT).show();
+
+        // FD2.2 instantiating an instance from firebase database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        // specify reference is UserID
+        DatabaseReference reference = database.getReference(FirebaseAuth.getInstance().getUid());
+        reference.setValue(course.getCode());
+
 
     }
     //44. go to constructor method for the Adapter class (courseAdapter)

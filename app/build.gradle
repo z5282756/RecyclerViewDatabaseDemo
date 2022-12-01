@@ -45,6 +45,8 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
     // FB3 add new empty activity --> LoginActivity
 
+    // FD1
+    implementation 'com.google.firebase:firebase-database:20.1.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
